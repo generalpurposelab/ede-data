@@ -1,0 +1,9 @@
+file_name,task_category,task_description,variables,total
+yosm.csv,classification,sentiment analysis of movie reviews,"{""variable_1"": ""movie review"", ""variable_2"": ""sentiment""}",1501
+flores.csv,rewrite_translation,parallel sentences in english and yoruba,"{""variable_1"": ""english text"", ""variable_2"": ""yoruba translation""}",2009
+xlsum.csv,summarisation,annotated article-summary pairs from BBC,"{""variable_1"": ""headline"", ""variable_2"": ""article"", ""variable_3"": ""summary""}",7936
+afrisenti.csv,classification,tweets with sentiment analysis,"{""variable_1"": ""tweet"", ""variable_2"": ""sentiment""}",15128
+proverbs.csv,generation,Yoruba proverbs and their meanings,"{""variable_1"": ""proverb"", ""variable_2"": ""meaning""}",2591
+bbc.csv,generation,News articles from the BBC and local news with associated headlines,"{""variable_1"": ""headline"", ""variable_2"": ""article""}",2
+wiki.csv,open_qa,Wikipedia articles,"{""variable_1"": ""article""}",4478
+menyo.csv,rewrite_translation,parallel sentences in english and yoruba,"{""variable_1"": ""english text"", ""variable_2"": ""yoruba translation""}",16704

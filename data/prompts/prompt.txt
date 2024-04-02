@@ -1,0 +1,1 @@
+Use case: {task_category}\nTask description: {task_description}\n\n{context}Here are two examples:\n<example>\n{seed_1}\n</example>\n\n<example>\n{seed_2}\n</example>
