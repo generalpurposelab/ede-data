@@ -1,12 +1,18 @@
 import os
 import time
+import asyncio
+from dotenv import load_dotenv
 
 from .utils.create_csv import CSVCreator
 from .utils.generate_qa_anthropic import QAGeneratorAnthropic
 from .utils.generate_qa_openai import QAGeneratorOpenAI
 
+load_dotenv(dotenv_path='.env.local')
+api_key = os.getenv('OPENAI_API_KEY')
+DEFAULT_MODEL={"provider": "openai", "model": "gpt-4-turbo-preview"}
+
 class Ede:
-    def __init__(self, api_key, target_language, model, data_dir="data", size=100):
+    def __init__(self, target_language, model=DEFAULT_MODEL, api_key=api_key, data_dir="data", size=100):
         self.api_key = api_key
         self.model = model["model"]  
         self.provider = model["provider"]
@@ -18,21 +24,21 @@ class Ede:
         input_schema_file = f"{self.data_dir}/schemas/input_schema.csv"
         output_schema_file = f"{self.data_dir}/schemas/output_schema.csv"
         output_file = f"{self.data_dir}/output/output.csv"
-
+        
         if os.path.exists(output_file):
             print(f"Skipping CSV creation as output.csv already exists.")
         else:
             csv_creator = CSVCreator(input_schema_file, output_schema_file, self.data_dir, self.target_language)
             data = csv_creator.generate_data(self.size)
             csv_creator.save_data(data, output_file)
+        
         if self.provider.lower() == "openai":
             qa_generator = QAGeneratorOpenAI(output_file, self.api_key, self.target_language, self.model)
         else:
             qa_generator = QAGeneratorAnthropic(output_file, self.api_key, self.target_language, self.model)
         
         start_time = time.time()
-        qa_generator.process_output_csv()
+        asyncio.run(qa_generator.process_output_csv())  # Run the coroutine using asyncio.run
         end_time = time.time()
-        
         execution_time = end_time - start_time
         print(f"Execution time of qa_generator.process_output_csv(): {execution_time:.2f} seconds")

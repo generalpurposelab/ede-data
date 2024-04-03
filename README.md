@@ -5,7 +5,7 @@
 [[Data card]]()
 [[Yoruba example]]()
 
-The Ede Python library automates the generations of instruction fine-tuning datasets in low-resource languages. PyPI package coming soon. Using GPT-4, it generates at 15.7s per generation.
+The Ede Python library automates the generations of instruction fine-tuning datasets in low-resource languages. PyPI package coming soon. Using GPT-4, it generates at 15.7s per generation using the API simply and 0.55s per generation (~15 hours) using batch processing.
 
 ## Setup
 
