@@ -9,7 +9,7 @@ from openai import OpenAI
 import asyncio
 import aiohttp
 
-class QAGeneratorOpenAI:
+class QAGenerator:
     def __init__(self, output_file, api_key, target_language, model="gpt-4-turbo-preview"):
         self.client = OpenAI(api_key=api_key)
         self.output_file = output_file

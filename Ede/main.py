@@ -4,8 +4,7 @@ import asyncio
 from dotenv import load_dotenv
 
 from .utils.create_csv import CSVCreator
-from .utils.generate_qa_anthropic import QAGeneratorAnthropic
-from .utils.generate_qa_openai import QAGeneratorOpenAI
+from .utils.generate_qa import QAGenerator
 
 load_dotenv(dotenv_path='.env.local')
 api_key = os.getenv('OPENAI_API_KEY')
@@ -31,14 +30,9 @@ class Ede:
             csv_creator = CSVCreator(input_schema_file, output_schema_file, self.data_dir, self.target_language)
             data = csv_creator.generate_data(self.size)
             csv_creator.save_data(data, output_file)
-        
-        if self.provider.lower() == "openai":
-            qa_generator = QAGeneratorOpenAI(output_file, self.api_key, self.target_language, self.model)
-        else:
-            qa_generator = QAGeneratorAnthropic(output_file, self.api_key, self.target_language, self.model)
-        
+        qa_generator = QAGenerator(output_file, self.api_key, self.target_language, self.model)
         start_time = time.time()
-        asyncio.run(qa_generator.process_output_csv())  # Run the coroutine using asyncio.run
+        asyncio.run(qa_generator.process_output_csv())  
         end_time = time.time()
         execution_time = end_time - start_time
         print(f"Execution time of qa_generator.process_output_csv(): {execution_time:.2f} seconds")
