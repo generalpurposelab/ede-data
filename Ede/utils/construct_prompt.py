@@ -12,16 +12,18 @@ class PromptConstructor:
             self.seeds = [json.loads(line) for line in file]
         self.source_counts = {item['file_name']: int(item['total']) for item in self.input_schema}
         self.category_sources = {}
-        self.task_descriptions = {} 
-        self.variable_names = {}  # Store variable names for each task category
         for item in self.input_schema:
             category = item['task_category']
+            source_file = item['file_name']
             if category not in self.category_sources:
                 self.category_sources[category] = []
-            self.category_sources[category].append(item['file_name'])
-            self.task_descriptions[category] = item['task_description']
-            # Parse and store variable names
-            self.variable_names[category] = json.loads(item['variables'])
+            self.category_sources[category].append(source_file)
+        self.task_descriptions = {} 
+        self.variable_names = {}  
+        for item in self.input_schema:
+            category = item['task_category']
+            source_file = item['file_name']
+            self.variable_names[(category, source_file)] = json.loads(item['variables'])
         self.input_data = {}
         for item in self.input_schema:
             file_path = f"data/input/{item['file_name']}"
@@ -35,11 +37,16 @@ class PromptConstructor:
         if source_file == 'self-instruct':
             return {}
         rows = self.input_data[source_file]
-        variable_names_mapping = self.variable_names[task_category] 
-        for row in rows:
-            yield {variable_names_mapping.get(f"variable_{i+1}", f"variable_{i+1}"): value for i, value in enumerate(row.values())}
-        while True:
-            yield {}
+        key = (task_category, source_file)  
+        if key in self.variable_names:
+            variable_names_mapping = self.variable_names[key]
+            for row in rows:
+                yield {variable_names_mapping.get(f"variable_{i+1}", f"variable_{i+1}"): value for i, value in enumerate(row.values())}
+            while True:
+                yield {}
+        else:
+            context_str = ""
+            variable_names_mapping = {}
 
     def load_prompts(self, source):
         system_prompt = f"{self.template_dir}/system.txt"
@@ -52,19 +59,33 @@ class PromptConstructor:
 
     def construct_prompts(self, task_category, source, variable_values, target_language, task_description):
         user_prompt, system_prompt = self.load_prompts(source)
-        context_str = "".join([f"{variable_name}: {value}\n" for variable_name, value in variable_values.items()])
+        
+        key = (task_category, source)  
+        if key in self.variable_names:
+            variable_names_mapping = self.variable_names[key]
+            if len(variable_values) == 1:
+                variable_name = next(iter(variable_names_mapping.values()))
+                context_str = f"{variable_name}: {next(iter(variable_values.values()))}\n"
+            else:
+                context_str = "".join([f"{variable_names_mapping.get(f'variable_{i+1}', f'variable_{i+1}')}: {value}\n" for i, value in enumerate(variable_values.values())])
+        else:
+            context_str = ""
+            variable_names_mapping = {}
+
         category_seeds = [seed for seed in self.seeds if seed['category'] == task_category]
         if len(category_seeds) < 2:
             raise ValueError(f"Not enough seeds for category '{task_category}'. Please add more seeds or handle this case.")
         seed_1, seed_2 = random.sample(category_seeds, 2)
         seed_1_str = json.dumps({"question": seed_1['question'], "answer": seed_1['answer']})
         seed_2_str = json.dumps({"question": seed_2['question'], "answer": seed_2['answer']})
-        if source == "self-instruct":
+        
+        if source == "self-instruct" or context_str == "":
             user_context = ""
             system_context = ""
         else:
             user_context = f"\n\nIncorporate this context:\n<context>\n{context_str}</context>\n\n"
             system_context = "\n5. Incorporate the context provided into your answer." # It has been verified for accuracy and spelling so you can draw from it verbatim as appropriate
+        
         user_prompt = user_prompt.format(
             task_category=task_category, 
             task_description=task_description,  

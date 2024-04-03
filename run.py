@@ -1,12 +1,17 @@
-from InstructGlobal.main import InstructGlobal
+import os
+from dotenv import load_dotenv
 
-api_key = ""
+from Ede.main import Ede
+
+load_dotenv(dotenv_path='.env.local')
+
+api_key = os.getenv('OPENAI_API_KEY')
 model={"provider": "openai", "model": "gpt-4-turbo-preview"}
 target_language = "Yoruba"
 data_dir="data"
-size=10
+size=100
 
-pipeline = InstructGlobal(
+pipeline = Ede(
     api_key=api_key, 
     target_language=target_language, 
     model=model, 

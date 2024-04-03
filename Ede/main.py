@@ -1,10 +1,11 @@
 import os
+import time
 
 from .utils.create_csv import CSVCreator
 from .utils.generate_qa_anthropic import QAGeneratorAnthropic
 from .utils.generate_qa_openai import QAGeneratorOpenAI
 
-class InstructGlobal:
+class Ede:
     def __init__(self, api_key, target_language, model, data_dir="data", size=100):
         self.api_key = api_key
         self.model = model["model"]  
@@ -29,4 +30,9 @@ class InstructGlobal:
         else:
             qa_generator = QAGeneratorAnthropic(output_file, self.api_key, self.target_language, self.model)
         
+        start_time = time.time()
         qa_generator.process_output_csv()
+        end_time = time.time()
+        
+        execution_time = end_time - start_time
+        print(f"Execution time of qa_generator.process_output_csv(): {execution_time:.2f} seconds")
