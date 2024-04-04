@@ -64,7 +64,7 @@ pipeline.run()
 ### Output schema
 
 | task_category | task_description | percent | total |
-| --- | --- | --- | --- | --- |
+| --- | --- | --- | --- |
 | classification | sentiment analysis of movie reviews | categorize or label the provided content into predefined classes or groups | 0.03 |
 
 ## Versioning
