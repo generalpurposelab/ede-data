@@ -1,11 +1,6 @@
 # Ede Python library
 
-[[Blog]]()
-[[Paper]]()
-[[Data card]]()
-[[Yoruba example]]()
-
-The Ede Python library automates the generations of instruction fine-tuning datasets in low-resource languages. PyPI package coming soon. Using GPT-4, it generates at 15.7s per generation using the API simply and 0.55s per generation (~15 hours) using batch processing.
+The Ede Python library automates the generations of instruction fine-tuning datasets in low-resource languages. PyPI package coming soon. Using GPT-4, it takes 0.5-1.5s per generation (using batch processing).
 
 ## Setup
 
@@ -21,14 +16,12 @@ python run.py
 ```python
 import Ede
 
-api_key = "" # api key
 model={"provider": "", "model": ""} # accepts openai and anthropic for provider
 target_language = "" # target language e.g. Yoruba
 data_dir="data" # data directory (defaults to data). should contain input, output and schemas
 size=100 # dataset size (defaults to 100)
 
 pipeline = Ede(
-    api_key=api_key, 
     target_language=target_language, 
     model=model, 
     data_dir=data_dir, 

@@ -1,6 +1,7 @@
 import os
 import time
 import asyncio
+import pandas as pd
 from dotenv import load_dotenv
 
 from .utils.create_csv import CSVCreator
@@ -35,4 +36,12 @@ class Ede:
         asyncio.run(qa_generator.process_output_csv())  
         end_time = time.time()
         execution_time = end_time - start_time
-        print(f"Execution time of qa_generator.process_output_csv(): {execution_time:.2f} seconds")
+        print(f"Execution time: {execution_time:.2f} seconds")
+        self.clean_csv(output_file)
+
+    def clean_csv(self, output_file):
+        df = pd.read_csv(output_file)
+        df.drop(['user_prompt', 'system_prompt'], axis=1, inplace=True)
+        column_order = ['question', 'answer', 'context', 'task_category', 'source']
+        df = df.reindex(columns=column_order)
+        df.to_csv(output_file, index=False)

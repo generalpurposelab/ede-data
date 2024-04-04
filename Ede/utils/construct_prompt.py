@@ -99,4 +99,4 @@ class PromptConstructor:
             language=target_language, 
             context=system_context
         )
-        return user_prompt, system_prompt
+        return user_prompt, system_prompt, context_str

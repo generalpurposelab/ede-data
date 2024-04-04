@@ -26,18 +26,18 @@ class CSVCreator:
         
         for category, detail in tqdm(category_details.items(), desc="Building output.csv"):
             count = detail['count']
-            task_description = detail['description']  # Extract task_description for the current category
+            task_description = detail['description']  # Existing code...
+            source_file = self.select_source_file(category)
+            input_row_data_generator = self.prompt_constructor.fetch_input_row_data(source_file, category)
+            
             for _ in range(count):
-                source_file = self.select_source_file(category)
-                input_row_data_generator = self.prompt_constructor.fetch_input_row_data(source_file, category)
-                
                 try:
                     input_row_data = next(input_row_data_generator)
                 except StopIteration:
                     input_row_data = {}
                 
-                # Pass task_description to construct_prompts
-                user_prompt, system_prompt = self.prompt_constructor.construct_prompts(category, source_file, input_row_data, self.target_language, task_description)
+                # Adjust this line to capture context_str
+                user_prompt, system_prompt, context_str = self.prompt_constructor.construct_prompts(category, source_file, input_row_data, self.target_language, task_description)
                 
                 row = {
                     'question': '',
@@ -45,7 +45,8 @@ class CSVCreator:
                     'user_prompt': user_prompt,
                     'system_prompt': system_prompt,
                     'task_category': category,
-                    'source': source_file
+                    'source': source_file,
+                    'context': context_str  
                 }
                 data.append(row)
         
@@ -69,7 +70,7 @@ class CSVCreator:
         return source_file
 
     def save_data(self, data, output_file):
-        fieldnames = ['question', 'answer', 'user_prompt', 'system_prompt', 'task_category', 'source']
+        fieldnames = ['question', 'answer', 'user_prompt', 'system_prompt', 'task_category', 'source', 'context']  
         sorted_data = sorted(data, key=lambda x: x['task_category'])
         
         # Count 'self-instruct' and other context values
