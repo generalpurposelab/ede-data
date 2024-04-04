@@ -4,6 +4,7 @@ import random
 
 class PromptConstructor:
     def __init__(self, input_schema_file, output_schema_file, data_dir):
+        self.data_dir = data_dir
         with open(input_schema_file, 'r') as file:
             self.input_schema = list(csv.DictReader(file))
         with open(output_schema_file, 'r') as file:
@@ -31,22 +32,23 @@ class PromptConstructor:
                 reader = csv.DictReader(file)
                 self.input_data[item['file_name']] = list(reader)
         self.template_dir = data_dir + "/prompts"
-        
 
     def fetch_input_row_data(self, source_file, task_category):
         if source_file == 'self-instruct':
-            return {}
-        rows = self.input_data[source_file]
-        key = (task_category, source_file)  
-        if key in self.variable_names:
-            variable_names_mapping = self.variable_names[key]
-            for row in rows:
-                yield {variable_names_mapping.get(f"variable_{i+1}", f"variable_{i+1}"): value for i, value in enumerate(row.values())}
-            while True:
-                yield {}
+            yield {}
         else:
-            context_str = ""
-            variable_names_mapping = {}
+            with open(f"{self.data_dir}/input/{source_file}", 'r') as file:
+                reader = csv.DictReader(file)
+                key = (task_category, source_file)
+                if key in self.variable_names:
+                    variable_names_mapping = self.variable_names[key]
+                    for row in reader:
+                        yield {variable_names_mapping.get(f"variable_{i+1}", f"variable_{i+1}"): value for i, value in enumerate(row.values())}
+                    while True:
+                        yield {}
+                else:
+                    for row in reader:
+                        yield row
 
     def load_prompts(self, source):
         system_prompt = f"{self.template_dir}/system.txt"
